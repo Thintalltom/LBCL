@@ -11,19 +11,19 @@ export function ClubListingPage() {
   } = useClubs();
   const navigate = useNavigate();
   return <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Registered Clubs</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Manage all clubs in the Lagos Basketball Community League.
-          </p>
-        </div>
-        <Button onClick={() => navigate('/clubs/new')}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add New Club
-        </Button>
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Registered Clubs</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Manage all clubs in the LAGOS BASKETBALL COMMUNITY LEAGUE.
+        </p>
       </div>
+      <Button onClick={() => navigate('/clubs/new')}>
+        <PlusCircle className="mr-2 h-4 w-4" />
+        Add New Club
+      </Button>
+    </div>
 
-      {clubs.length === 0 ? <EmptyState icon={Trophy} title="No clubs registered yet" description="Get started by registering the first club in the league. You'll be able to add players and coaches afterwards." actionLabel="Register First Club" onAction={() => navigate('/clubs/new')} /> : <ClubsTable clubs={clubs} />}
-    </div>;
+    {clubs.length === 0 ? <EmptyState icon={Trophy} title="No clubs registered yet" description="Get started by registering the first club in the league. You'll be able to add players and coaches afterwards." actionLabel="Register First Club" onAction={() => navigate('/clubs/new')} /> : <ClubsTable clubs={clubs} />}
+  </div>;
 }

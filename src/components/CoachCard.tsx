@@ -26,6 +26,7 @@ export function CoachCard({
     }
   };
   const title = type === 'head' ? 'Head Coach' : 'Assistant Coach';
+  console.log('title', title);
   if (!coach) {
     return <>
         <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 flex flex-col items-center justify-center text-center h-full min-h-[200px] hover:border-[#FF6B35] hover:bg-orange-50/30 transition-all group">

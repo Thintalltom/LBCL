@@ -13,7 +13,8 @@ export function Header() {
               <Trophy className="h-6 w-6 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900 tracking-tight">
-              Lagos Basketball <span className="text-[#FF6B35]">League</span>
+              LAGOS BASKETBALL COMMUNITY LEAGUE 
+              {/* <span className="text-[#FF6B35]">League</span> */}
             </span>
           </Link>
 
