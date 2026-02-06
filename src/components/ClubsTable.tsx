@@ -1,22 +1,13 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Users, UserCheck, UserX } from 'lucide-react';
 import { Club } from '../types';
-import { usePlayers } from '../context/PlayerContext';
-import { useCoaches } from '../context/CoachContext';
 interface ClubsTableProps {
-  clubs: Club[];
+  clubs: Club[] | undefined;
 }
 export function ClubsTable({
   clubs
 }: ClubsTableProps) {
   const navigate = useNavigate();
-  const {
-    getPlayersByClub
-  } = usePlayers();
-  const {
-    getCoachesByClub
-  } = useCoaches();
   return <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
       <table className="min-w-full divide-y divide-gray-300">
         <thead className="bg-gray-50">
@@ -39,18 +30,21 @@ export function ClubsTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-          {clubs.map(club => {
-          const playerCount = getPlayersByClub(club.id).length;
-          const coaches = getCoachesByClub(club.id);
-          const hasHeadCoach = coaches.some(c => c.type === 'head');
-          const hasAssistantCoach = coaches.some(c => c.type === 'assistant');
-          return <tr key={club.id} className="hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => navigate(`/clubs/${club.id}`)}>
+          {clubs?.map(club => {
+          const playerCount = club.players?.length || 0;
+          const coaches = club.coaches || [];
+          const hasHeadCoach = coaches.some(c => c.role === 'Head Coach');
+          const hasAssistantCoach = coaches.some(c => c.role === 'Assistant Coach');
+          return <tr key={club._id} className="hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => navigate(`/clubs/${club._id}`)}>
                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                   <div className="flex items-center">
-                    {club.logo ? <img src={club.logo} alt="" className="h-8 w-8 rounded-full mr-3 object-cover" /> : <div className="h-8 w-8 rounded-full bg-orange-100 text-[#FF6B35] flex items-center justify-center mr-3 font-bold">
-                        {club.name.charAt(0)}
+                    {club.club_logo ? <img src={club.club_logo} alt="" className="h-8 w-8 rounded-full mr-3 object-cover" /> : <div className="h-8 w-8 rounded-full bg-orange-100 text-[#FF6B35] flex items-center justify-center mr-3 font-bold">
+                        {club.name.charAt(0).toUpperCase()}
                       </div>}
-                    {club.name}
+                    <div>
+                      <div className="font-medium">{club.name}</div>
+                      <div className="text-xs text-gray-500">{club.club_status === 'home' ? 'Home Club' : 'Away Club'}</div>
+                    </div>
                   </div>
                 </td>
                 <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">

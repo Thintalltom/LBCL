@@ -1,36 +1,40 @@
 export interface Club {
-  id: string;
+  _id: string;
   name: string;
-  logo?: string;
+  club_logo?: string;
   address?: string;
-  lga?: string;
-  contact?: string;
-  homeOrAway?: 'home' | 'away';
-  createdAt: string;
+  Lga?: string;
+  contact_information?: string;
+  club_status?: 'home' | 'away';
+  created_at: string;
+  players: Player[];
+  coaches: Coach[];
 }
 export interface Player {
-  id: string;
-  clubId: string;
-  firstName: string;
-  lastName: string;
-  profileImage?: string;
-  jerseyNumber: number;
-  sex: 'Male' | 'Female';
+  _id: string;
+  club_id: string;
+  first_name: string;
+  last_name: string;
+  photo?: string;
+  jersey_number: number;
+  sex: 'male' | 'female';
   email: string;
-  phone: string;
+  phone_number: string;
   height: number; // cm
   weight: number; // kg
-  dateOfBirth: string;
-  jerseyColor: string;
+  dob: string;
+  jersey_color: string;
+  position?: string;
+
 }
 export interface Coach {
   id: string;
   clubId: string;
-  type: 'head' | 'assistant';
-  fullName: string;
-  profileImage?: string;
+  role: 'Head Coach' | 'Assistant Coach';
+  full_name: string;
+  photo?: string;
   phone: string;
   email: string;
   address: string;
-  sex: 'Male' | 'Female';
+  sex: 'male' | 'female';
 }

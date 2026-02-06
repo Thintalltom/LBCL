@@ -5,11 +5,14 @@ import { useClubs } from '../context/ClubContext';
 import { ClubsTable } from '../components/ClubsTable';
 import { EmptyState } from '../components/EmptyState';
 import { Button } from '../components/ui/Button';
+import { useGetClubsQuery } from '../store/api/endpoints/clubApi';
 export function ClubListingPage() {
   const {
     clubs
   } = useClubs();
   const navigate = useNavigate();
+   const { data: clubsData } = useGetClubsQuery();
+    
   return <div className="space-y-6">
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
@@ -24,6 +27,6 @@ export function ClubListingPage() {
       </Button>
     </div>
 
-    {clubs.length === 0 ? <EmptyState icon={Trophy} title="No clubs registered yet" description="Get started by registering the first club in the league. You'll be able to add players and coaches afterwards." actionLabel="Register First Club" onAction={() => navigate('/clubs/new')} /> : <ClubsTable clubs={clubs} />}
+    {clubsData && clubsData.length === 0 ? <EmptyState icon={Trophy} title="No clubs registered yet" description="Get started by registering the first club in the league. You'll be able to add players and coaches afterwards." actionLabel="Register First Club" onAction={() => navigate('/clubs/new')} /> : <ClubsTable clubs={clubsData} />}
   </div>;
 }

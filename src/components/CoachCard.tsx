@@ -7,7 +7,7 @@ import { ConfirmDialog } from './ui/ConfirmDialog';
 import { Button } from './ui/Button';
 interface CoachCardProps {
   coach?: Coach;
-  type: 'head' | 'assistant';
+  type: 'Head Coach' | 'Assistant Coach';
   clubId: string;
 }
 export function CoachCard({
@@ -15,6 +15,7 @@ export function CoachCard({
   type,
   clubId
 }: CoachCardProps) {
+
   const {
     deleteCoach
   } = useCoaches();
@@ -25,8 +26,8 @@ export function CoachCard({
       deleteCoach(coach.id);
     }
   };
-  const title = type === 'head' ? 'Head Coach' : 'Assistant Coach';
-  console.log('title', title);
+  const title = type === 'Head Coach' ? 'Head Coach' : 'Assistant Coach';
+
   if (!coach) {
     return <>
         <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 flex flex-col items-center justify-center text-center h-full min-h-[200px] hover:border-[#FF6B35] hover:bg-orange-50/30 transition-all group">
@@ -73,11 +74,15 @@ export function CoachCard({
               </div>
               <div className="flex items-center text-sm text-gray-500">
                 <Phone className="h-4 w-4 mr-2 text-gray-400" />
-                <span>{coach.phone}</span>
+                <span>{coach.contact_information}</span>
               </div>
               <div className="flex items-center text-sm text-gray-500">
                 <MapPin className="h-4 w-4 mr-2 text-gray-400" />
                 <span className="truncate">{coach.address}</span>
+              </div>
+              <div className="flex items-center text-sm text-gray-500">
+                <Mail className="h-4 w-4 mr-2 text-gray-400" />
+                <span className="truncate">{coach.sex}</span>
               </div>
             </div>
           </div>

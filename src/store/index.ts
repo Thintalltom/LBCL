@@ -5,13 +5,15 @@ import clubReducer from './slices/clubSlice';
 import playerReducer from './slices/playerSlice';
 import coachReducer from './slices/coachSlice';
 import { apiSlice } from './api/apiSlice';
+import { chatSlice } from './api/chatbotSlice';
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     clubs: clubReducer,
     players: playerReducer,
     coaches: coachReducer,
-    [apiSlice.reducerPath]: apiSlice.reducer
+    [apiSlice.reducerPath]: apiSlice.reducer,
+    [chatSlice.reducerPath]: chatSlice.reducer,
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiSlice.middleware)
 });

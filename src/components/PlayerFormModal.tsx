@@ -6,22 +6,22 @@ import { Input } from './ui/Input';
 import { Select } from './ui/Select';
 import { Button } from './ui/Button';
 import { Upload } from 'lucide-react';
+import {useUpdatePlayerMutation, useCreatePlayerMutation} from '../store/api/endpoints/playerApi';
+import {useGetClubQuery} from '../store/api/endpoints/clubApi';
 interface PlayerFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   clubId: string;
   playerToEdit?: Player;
+
 }
 export function PlayerFormModal({
   isOpen,
   onClose,
   clubId,
-  playerToEdit
+  playerToEdit,
 }: PlayerFormModalProps) {
-  const {
-    addPlayer,
-    updatePlayer
-  } = usePlayers();
+
   const initialFormState = {
     firstName: '',
     lastName: '',
@@ -31,30 +31,16 @@ export function PlayerFormModal({
     jerseyColor: '',
     height: '',
     weight: '',
-    sex: 'Male',
+    sex: 'male',
     dateOfBirth: '',
-    profileImage: ''
+    profileImage: '',
+    position : ''
   };
   const [formData, setFormData] = useState(initialFormState);
-  useEffect(() => {
-    if (playerToEdit) {
-      setFormData({
-        firstName: playerToEdit.firstName,
-        lastName: playerToEdit.lastName,
-        email: playerToEdit.email,
-        phone: playerToEdit.phone,
-        jerseyNumber: playerToEdit.jerseyNumber.toString(),
-        jerseyColor: playerToEdit.jerseyColor,
-        height: playerToEdit.height.toString(),
-        weight: playerToEdit.weight.toString(),
-        sex: playerToEdit.sex,
-        dateOfBirth: playerToEdit.dateOfBirth,
-        profileImage: playerToEdit.profileImage || ''
-      });
-    } else {
-      setFormData(initialFormState);
-    }
-  }, [playerToEdit, isOpen]);
+  const {refetch} = useGetClubQuery(clubId);
+  const [updatePlayerApi] = useUpdatePlayerMutation();
+  const [createPlayerApi] = useCreatePlayerMutation();
+    const [error, setError] = useState('');
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const {
       name,
@@ -65,45 +51,72 @@ export function PlayerFormModal({
       [name]: value
     }));
   };
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert('Image size must be less than 2MB');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+          setError('Image size must be less than 2MB');
+          return;
+        }
+        try {
+          const cloudinaryUrl = await uploadToCloudinary(file);
+            setFormData(prev => ({
           ...prev,
-          profileImage: reader.result as string
+          profileImage: cloudinaryUrl
         }));
-      };
-      reader.readAsDataURL(file);
-    }
+         
+        } catch (error) {
+          setError('Failed to upload image');
+        }
+      }
+    };
+    const uploadToCloudinary = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "unsigned_players");
+
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/ditkktpky/image/upload",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+    const data = await res.json();
+    return data.secure_url;
   };
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const playerData = {
-      clubId,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      phone: formData.phone,
-      jerseyNumber: parseInt(formData.jerseyNumber),
-      jerseyColor: formData.jerseyColor,
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      photo: formData.profileImage || undefined,
+      position: formData.position, // Default position
       height: parseFloat(formData.height),
       weight: parseFloat(formData.weight),
-      sex: formData.sex as 'Male' | 'Female',
-      dateOfBirth: formData.dateOfBirth,
-      profileImage: formData.profileImage || undefined
+      dob: formData.dateOfBirth,
+      jersey_number: parseInt(formData.jerseyNumber),
+      jersey_color: formData.jerseyColor,
+      club_id: clubId,
+      sex: formData.sex as "male" | "female",
+      email: formData.email,
+      phone_number: formData.phone
     };
-    if (playerToEdit) {
-      updatePlayer(playerToEdit.id, playerData);
-    } else {
-      addPlayer(playerData);
+    
+    try {
+      if (playerToEdit) {
+        await updatePlayerApi({ id: playerToEdit._id, data: playerData }).unwrap();
+        refetch();
+      } else {
+        await createPlayerApi(playerData).unwrap();
+        refetch();
+      }
+      onClose();
+    } catch (error) {
+      console.error('Error saving player:', error);
     }
-    onClose();
   };
   return <Modal isOpen={isOpen} onClose={onClose} title={playerToEdit ? 'Edit Player' : 'Register New Player'}>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -134,10 +147,10 @@ export function PlayerFormModal({
         <div className="grid grid-cols-2 gap-4">
           <Input label="Date of Birth *" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleChange} required />
           <Select label="Sex *" name="sex" value={formData.sex} onChange={handleChange} options={[{
-          value: 'Male',
+          value: 'male',
           label: 'Male'
         }, {
-          value: 'Female',
+          value: 'female',
           label: 'Female'
         }]} />
         </div>
@@ -151,6 +164,11 @@ export function PlayerFormModal({
           <Input label="Jersey Number *" name="jerseyNumber" type="number" value={formData.jerseyNumber} onChange={handleChange} required />
           <Input label="Jersey Color *" name="jerseyColor" value={formData.jerseyColor} onChange={handleChange} required />
         </div>
+        <div className="grid grid-cols-2 gap-4">
+          {/* <Input label="Email *" name="email" type="email" value={formData.email} onChange={handleChange} required /> */}
+          <Input label="Position *" name="position" value={formData.position} onChange={handleChange} required />
+        </div>
+       
 
         <div className="pt-4 flex justify-end space-x-3">
           <Button type="button" variant="secondary" onClick={onClose}>
