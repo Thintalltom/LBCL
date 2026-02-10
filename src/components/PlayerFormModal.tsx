@@ -40,7 +40,28 @@ export function PlayerFormModal({
   const {refetch} = useGetClubQuery(clubId);
   const [updatePlayerApi] = useUpdatePlayerMutation();
   const [createPlayerApi] = useCreatePlayerMutation();
-    const [error, setError] = useState('');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (playerToEdit) {
+      setFormData({
+        firstName: playerToEdit.first_name || '',
+        lastName: playerToEdit.last_name || '',
+        email: playerToEdit.email || '',
+        phone: playerToEdit.phone_number || '',
+        jerseyNumber: playerToEdit.jersey_number?.toString() || '',
+        jerseyColor: playerToEdit.jersey_color || '',
+        height: playerToEdit.height?.toString() || '',
+        weight: playerToEdit.weight?.toString() || '',
+        sex: playerToEdit.sex || 'male',
+        dateOfBirth: playerToEdit.dob ? playerToEdit.dob.split('T')[0] : '',
+        profileImage: playerToEdit.photo || '',
+        position: playerToEdit.position || ''
+      });
+    } else {
+      setFormData(initialFormState);
+    }
+  }, [playerToEdit, isOpen]);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const {
       name,

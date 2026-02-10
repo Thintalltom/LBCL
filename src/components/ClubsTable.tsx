@@ -3,9 +3,10 @@ import { ChevronRight, Users, UserCheck, UserX } from 'lucide-react';
 import { Club } from '../types';
 interface ClubsTableProps {
   clubs: Club[] | undefined;
+  isLoading?: boolean;
 }
 export function ClubsTable({
-  clubs
+  clubs, isLoading
 }: ClubsTableProps) {
   const navigate = useNavigate();
   return <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
@@ -30,7 +31,7 @@ export function ClubsTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-          {clubs?.map(club => {
+          {isLoading ? <tr><td colSpan={5} className="text-center py-4 text-gray-500">Loading clubs...</td></tr> : clubs?.map(club => {
           const playerCount = club.players?.length || 0;
           const coaches = club.coaches || [];
           const hasHeadCoach = coaches.some(c => c.role === 'Head Coach');

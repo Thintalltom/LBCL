@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Coach } from '../types';
-import { useCoaches } from '../context/CoachContext';
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
 import { Select } from './ui/Select';
 import { Button } from './ui/Button';
 import { Upload } from 'lucide-react';
-import { toast } from 'sonner';
-import { useCreateCoachMutation } from '../store/api/endpoints/coachApi';
+import { toast, Toaster  } from 'sonner';
+import { useCreateCoachMutation, useUpdateCoachMutation } from '../store/api/endpoints/coachApi';
 import { useGetClubQuery } from '../store/api/endpoints/clubApi';
 interface CoachFormModalProps {
   isOpen: boolean;
@@ -23,14 +22,12 @@ export function CoachFormModal({
   type,
   coachToEdit
 }: CoachFormModalProps) {
-  const {
-    addCoach,
-    updateCoach
-  } = useCoaches();
+  
+  const [updateCoach] = useUpdateCoachMutation();
   const initialFormState = {
     full_name: '',
     email: '',
-    phone: '',
+    contact_information: '',
     address: '',
     sex: 'male',
     photo: '',
@@ -43,7 +40,7 @@ export function CoachFormModal({
       setFormData({
         full_name: coachToEdit.full_name,
         email: coachToEdit.email,
-        phone: coachToEdit.phone,
+        contact_information: coachToEdit.contact_information,
         address: coachToEdit.address,
         sex: coachToEdit.sex,
         photo: coachToEdit.photo || ''
@@ -67,7 +64,7 @@ export function CoachFormModal({
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert('Image size must be less than 2MB');
+        toast.error('Image size must be less than 2MB');
         return;
       }
 
@@ -77,6 +74,7 @@ export function CoachFormModal({
           ...prev,
           photo: cloudinaryUrl
         }));
+        toast.success('Coach photo uploaded successfully');
       }).catch((error) => {
         toast.error('Failed to upload image', error);
 
@@ -99,34 +97,40 @@ export function CoachFormModal({
     const data = await res.json();
     return data.secure_url;
   }
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const coachData = {
       clubId,
       'full_name': formData.full_name,
       'photo': formData.photo || undefined,
       'address': formData.address,
-      'contact_information': formData.phone,
       'sex': formData.sex as 'male' | 'female',
       'email': formData.email,
-      'phone': formData.phone,
+      'contact_information': formData.contact_information,
       'role': type,
-      // profileImage: formData.profileImage || undefined
     };
 
-    if (coachToEdit) {
-      updateCoach(coachToEdit.id, coachData);
-      refetch();
-    } else {
-      createCoach(coachData);
-      refetch();
+    try {
+      if (coachToEdit && coachToEdit._id) {
+        await updateCoach({ id: coachToEdit._id, data: coachData });
+        toast.success('Coach updated successfully');
+      } else {
+        await createCoach(coachData);
+        toast.success('Coach created successfully');
+      }
+      await refetch();
+      onClose();
+    } catch (error) {
+      toast.error('Failed to save coach');
     }
-    onClose();
   };
-  return <Modal isOpen={isOpen} onClose={onClose} title={`${coachToEdit ? 'Edit' : 'Register'} ${type === 'Head Coach' ? 'Head Coach' : 'Assistant Coach'}`}>
+  return(
+  <>
+  <Toaster />
+   <Modal isOpen={isOpen} onClose={onClose} title={`${coachToEdit ? 'Edit' : 'Register'} ${type === 'Head Coach' ? 'Head Coach' : 'Assistant Coach'}`}>
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm  text-left font-medium text-gray-700 mb-2">
           Profile Picture
         </label>
         <div className="flex items-center space-x-4">
@@ -141,13 +145,12 @@ export function CoachFormModal({
 
       <Input label="Full Name *" name="full_name" value={formData.full_name} onChange={handleChange} required />
 
-      <div className="grid grid-cols-2 gap-4">
-        <Input label="Email *" name="email" type="email" value={formData.email} onChange={handleChange} required />
-        <Input label="Phone *" name="phone" type="tel" value={formData.phone} onChange={handleChange} required />
-      </div>
+
+      <Input label="Email *" name="email" type="email" value={formData.email} onChange={handleChange} required />
+
 
       <Input label="Address *" name="address" value={formData.address} onChange={handleChange} required />
-      <Input label="Phone *" name="phone" value={formData.phone} onChange={handleChange} required />
+      <Input label="Phone *" name="contact_information" value={formData.contact_information} onChange={handleChange} required />
       <Select label="Sex *" name="sex" value={formData.sex} onChange={handleChange} options={[{
         value: 'male',
         label: 'Male'
@@ -163,5 +166,7 @@ export function CoachFormModal({
         <Button type="submit">Save Coach</Button>
       </div>
     </form>
-  </Modal>;
+  </Modal>
+  </>
+  );
 }

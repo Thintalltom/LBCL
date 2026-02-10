@@ -16,7 +16,7 @@ export function Select({
   ...props
 }: SelectProps) {
   const selectId = id || props.name || Math.random().toString(36).substr(2, 9);
-  return <div className="w-full">
+  return <div className="w-full text-left">
       {label && <label htmlFor={selectId} className="block text-sm font-medium text-gray-700 mb-1">
           {label}
         </label>}

@@ -11,7 +11,7 @@ export function ClubListingPage() {
     clubs
   } = useClubs();
   const navigate = useNavigate();
-   const { data: clubsData } = useGetClubsQuery();
+   const { data: clubsData, isFetching, isLoading } = useGetClubsQuery();
     
   return <div className="space-y-6">
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -27,6 +27,6 @@ export function ClubListingPage() {
       </Button>
     </div>
 
-    {clubsData && clubsData.length === 0 ? <EmptyState icon={Trophy} title="No clubs registered yet" description="Get started by registering the first club in the league. You'll be able to add players and coaches afterwards." actionLabel="Register First Club" onAction={() => navigate('/clubs/new')} /> : <ClubsTable clubs={clubsData} />}
+    {clubsData && clubsData.length === 0 ? <EmptyState icon={Trophy} title="No clubs registered yet" description="Get started by registering the first club in the league. You'll be able to add players and coaches afterwards." actionLabel="Register First Club" onAction={() => navigate('/clubs/new')} /> : <ClubsTable isLoading={isLoading || isFetching} clubs={clubsData} />}
   </div>;
 }

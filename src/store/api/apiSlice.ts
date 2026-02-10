@@ -4,7 +4,7 @@ import { RootState } from "../index";
 // Base API configuration
 // TODO: Update this URL when your backend is ready
 // const BASE_URL = "https://lsbc-backend-1.onrender.com/api/";
-const BASE_URL = "http://127.0.0.1:8000/api/";
+const BASE_URL = "https://lsbc-backend-1.onrender.com/api/";
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({

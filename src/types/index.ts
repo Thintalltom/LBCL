@@ -28,13 +28,14 @@ export interface Player {
 
 }
 export interface Coach {
-  id: string;
+  id?: string;
   clubId: string;
   role: 'Head Coach' | 'Assistant Coach';
   full_name: string;
   photo?: string;
-  phone: string;
+  contact_information: string;
   email: string;
   address: string;
   sex: 'male' | 'female';
+  _id?: string;
 }

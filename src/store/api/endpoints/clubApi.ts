@@ -44,7 +44,7 @@ export const clubApi = apiSlice.injectEndpoints({
     }),
     deleteClub: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/clubs/${id}/`,
+        url: `/clubs/${id}/delete/`,
         method: "DELETE",
       }),
       invalidatesTags: ["Club"],
